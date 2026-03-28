@@ -81,6 +81,7 @@ def check_disney(check_in, check_out):
         )
         resp.raise_for_status()
         data = resp.json()
+        print(f"Response: {data}")
         # Disney returns a list; any date not "none" means availability
         available_dates = [
             entry["date"] for entry in data
