@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "timestamp": "2026-03-28T20:46:46.473048+00:00",
+    "is_test": true,
+    "alerts": [
+      {
+        "name": "Race Night \u2014 Contemporary",
+        "check_in": "2027-01-08",
+        "check_out": "2027-01-09",
+        "hotels_checked": [
+          "Contemporary"
+        ],
+        "hotel_results": {
+          "Contemporary": {
+            "available": true,
+            "error": null
+          }
+        },
+        "available_hotels": [
+          "Contemporary"
+        ],
+        "has_availability": true
+      }
+    ]
+  }
+]
