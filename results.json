@@ -262,5 +262,85 @@
         "has_availability": true
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-28T23:37:21.416484+00:00",
+    "is_test": false,
+    "alerts": [
+      {
+        "name": "Race Night \u2014 Contemporary",
+        "check_in": "2027-01-08",
+        "check_out": "2027-01-09",
+        "hotels_checked": [
+          "Contemporary"
+        ],
+        "hotel_results": {
+          "Contemporary": {
+            "available": true,
+            "error": null
+          }
+        },
+        "available_hotels": [
+          "Contemporary"
+        ],
+        "has_availability": true
+      },
+      {
+        "name": "Race Weekend \u2014 Swan & Dolphin",
+        "check_in": "2027-01-09",
+        "check_out": "2027-01-11",
+        "hotels_checked": [
+          "Swan",
+          "Dolphin",
+          "Swan Reserve"
+        ],
+        "hotel_results": {
+          "Swan": {
+            "available": false,
+            "error": "403 Client Error: Forbidden for url: https://www.marriott.com/search/availabilityCalendar.mi?propertyCode=MC069&arrivalDate=2027-01-09&departureDate=2027-01-11&numberOfRooms=1&numberOfAdults=2"
+          },
+          "Dolphin": {
+            "available": false,
+            "error": "403 Client Error: Forbidden for url: https://www.marriott.com/search/availabilityCalendar.mi?propertyCode=MC070&arrivalDate=2027-01-09&departureDate=2027-01-11&numberOfRooms=1&numberOfAdults=2"
+          },
+          "Swan Reserve": {
+            "available": false,
+            "error": "403 Client Error: Forbidden for url: https://www.marriott.com/search/availabilityCalendar.mi?propertyCode=MC903&arrivalDate=2027-01-09&departureDate=2027-01-11&numberOfRooms=1&numberOfAdults=2"
+          }
+        },
+        "available_hotels": [],
+        "has_availability": false
+      },
+      {
+        "name": "Post-Race \u2014 Deluxe",
+        "check_in": "2027-01-11",
+        "check_out": "2027-01-16",
+        "hotels_checked": [
+          "Yacht Club",
+          "Beach Club",
+          "Polynesian"
+        ],
+        "hotel_results": {
+          "Yacht Club": {
+            "available": true,
+            "error": null
+          },
+          "Beach Club": {
+            "available": true,
+            "error": null
+          },
+          "Polynesian": {
+            "available": true,
+            "error": null
+          }
+        },
+        "available_hotels": [
+          "Yacht Club",
+          "Beach Club",
+          "Polynesian"
+        ],
+        "has_availability": true
+      }
+    ]
   }
 ]
