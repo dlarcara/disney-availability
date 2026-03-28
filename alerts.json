@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Race Night — Contemporary",
+    "hotels": ["Contemporary"],
+    "check_in": "2027-01-08",
+    "check_out": "2027-01-09",
+    "active": true
+  },
+  {
+    "name": "Race Weekend — Swan & Dolphin",
+    "hotels": ["Swan", "Dolphin", "Swan Reserve"],
+    "check_in": "2027-01-09",
+    "check_out": "2027-01-11",
+    "active": true
+  },
+  {
+    "name": "Post-Race — Deluxe",
+    "hotels": ["Yacht Club", "Beach Club", "Polynesian"],
+    "check_in": "2027-01-11",
+    "check_out": "2027-01-16",
+    "active": true
+  }
+]

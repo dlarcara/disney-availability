@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Disney Availability Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0a0e1a;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    #1f2d45;
+      --gold:      #c9a84c;
+      --gold-dim:  #8a6d2e;
+      --green:     #22c55e;
+      --green-dim: #14532d;
+      --red:       #ef4444;
+      --red-dim:   #7f1d1d;
+      --blue:      #60a5fa;
+      --text:      #e2e8f0;
+      --text-dim:  #64748b;
+      --text-mid:  #94a3b8;
+      --disney:    #1e40af;
+      --marriott:  #991b1b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #0a0e1a 0%, #0f1a2e 50%, #0a0e1a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 40px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: "✦";
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 120px;
+      color: var(--gold);
+      opacity: 0.04;
+      pointer-events: none;
+    }
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(24px, 4vw, 38px);
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+    .header-title span {
+      color: var(--gold);
+    }
+    .header-sub {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      font-family: 'DM Mono', monospace;
+    }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .last-checked {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: right;
+    }
+    .last-checked strong {
+      display: block;
+      color: var(--text-mid);
+      font-size: 12px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: #0a0e1a;
+    }
+    .btn-primary:hover { background: #d4b05a; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-mid);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+    }
+    .status-pill.ok    { background: #052e16; color: var(--green); border: 1px solid #14532d; }
+    .status-pill.warn  { background: #422006; color: #fb923c;      border: 1px solid #7c2d12; }
+    .status-pill.idle  { background: #1e1b4b; color: #a78bfa;      border: 1px solid #3730a3; }
+    .pulse {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ── Sections ── */
+    section { margin-top: 36px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .section-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    /* ── Alert Cards ── */
+    .alerts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .alert-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .alert-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--border);
+    }
+    .alert-card.has-availability::before { background: var(--green); }
+    .alert-card.no-check::before         { background: var(--gold-dim); }
+    .alert-card:hover { border-color: var(--gold-dim); }
+
+    .alert-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .alert-dates {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+    .hotel-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .hotel-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+    }
+    .hotel-tag.disney   { background: #1e3a5f; color: #93c5fd; border: 1px solid #1e40af; }
+    .hotel-tag.marriott { background: #3b1a1a; color: #fca5a5; border: 1px solid #7f1d1d; }
+    .hotel-tag.available { background: var(--green-dim); color: var(--green); border: 1px solid #166534; }
+
+    .alert-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+    .alert-status.available { background: #052e16; color: var(--green); border: 1px solid #14532d; }
+    .alert-status.none      { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
+    .alert-status.unchecked { background: #1c1a10; color: #ca8a04; border: 1px solid #854d0e; }
+
+    .alert-last-check {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      margin-top: 10px;
+    }
+
+    /* ── History Table ── */
+    .history-section { margin-top: 40px; }
+    .history-filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      font-size: 12px;
+      padding: 5px 14px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      transition: all 0.15s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--surface2);
+      border-color: var(--gold-dim);
+      color: var(--gold);
+    }
+
+    .history-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      padding: 10px 16px;
+      text-align: left;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    .td-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-mid);
+      white-space: nowrap;
+    }
+    .td-alert { font-weight: 500; color: var(--text); }
+    .td-hotels { color: var(--text-mid); font-size: 12px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      white-space: nowrap;
+    }
+    .badge.found { background: #052e16; color: var(--green); border: 1px solid #14532d; }
+    .badge.none  { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
+    .badge.test  { background: #1e1b4b; color: #a78bfa; border: 1px solid #3730a3; }
+
+    .available-hotels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .avail-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--green-dim);
+      color: var(--green);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-dim);
+    }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 14px; }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(201,168,76,0.3);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 13px;
+      color: var(--text);
+      z-index: 999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s;
+      max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-color: var(--green); }
+    #toast.error   { border-color: var(--red); }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      margin-top: 12px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+    @media (max-width: 640px) {
+      header { padding: 24px 20px; }
+      .status-bar { padding: 12px 20px; }
+      .container { padding: 0 16px; }
+      .alerts-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <div class="header-title">🏰 Disney <span>Availability</span> Tracker</div>
+      <div class="header-sub">January 2027 · runDisney Half Marathon Weekend</div>
+    </div>
+    <div class="header-actions">
+      <div class="last-checked" id="last-checked-label">
+        <strong>Last checked</strong>
+        <span id="last-checked-time">—</span>
+      </div>
+      <button class="btn btn-primary" id="run-btn" onclick="triggerRun(false)">
+        <span id="run-icon">▶</span> Run Check Now
+      </button>
+      <button class="btn btn-ghost" onclick="triggerRun(true)" title="Send test email">
+        ✉ Test Email
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="status-bar">
+  <div class="status-pill idle" id="status-pill">
+    <span class="pulse"></span>
+    <span id="status-text">Loading…</span>
+  </div>
+  <span id="status-detail" style="color:var(--text-dim)">Fetching latest results…</span>
+</div>
+
+<div class="container">
+
+  <!-- Active Alerts -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">Active Alerts</div>
+      <div class="section-count" id="alert-count">—</div>
+    </div>
+    <div class="alerts-grid" id="alerts-grid">
+      <div class="empty-state"><div class="icon">🔍</div><p>Loading alerts…</p></div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#1e3a5f;border:1px solid #1e40af"></div> Disney-owned</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3b1a1a;border:1px solid #7f1d1d"></div> Marriott-operated</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green-dim);border:1px solid #166534"></div> Available</div>
+    </div>
+  </section>
+
+  <!-- Check History -->
+  <section class="history-section">
+    <div class="section-header">
+      <div class="section-title">Check History</div>
+      <div class="section-count" id="history-count">—</div>
+    </div>
+    <div class="history-filters">
+      <button class="filter-btn active" onclick="filterHistory('all', this)">All</button>
+      <button class="filter-btn" onclick="filterHistory('found', this)">Availability Found</button>
+      <button class="filter-btn" onclick="filterHistory('test', this)">Test Runs</button>
+    </div>
+    <div class="history-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp (UTC)</th>
+            <th>Alert</th>
+            <th>Hotels Checked</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr><td colspan="4" class="empty-state"><p>Loading…</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ── Config ─────────────────────────────────────────────────────────────────
+  // IMPORTANT: Replace these with your actual GitHub username and repo name
+  const GITHUB_OWNER = "YOUR_GITHUB_USERNAME";
+  const GITHUB_REPO  = "YOUR_REPO_NAME";
+  const GITHUB_TOKEN = "";  // Leave blank — workflow_dispatch uses GitHub Pages auth
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let allResults  = [];
+  let allAlerts   = [];
+  let activeFilter = "all";
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  async function init() {
+    await Promise.all([loadAlerts(), loadResults()]);
+    renderAlertCards();
+    renderHistory();
+    updateStatusBar();
+  }
+
+  async function loadAlerts() {
+    try {
+      const r = await fetch(`alerts.json?_=${Date.now()}`);
+      allAlerts = await r.json();
+    } catch(e) {
+      console.error("Failed to load alerts.json", e);
+    }
+  }
+
+  async function loadResults() {
+    try {
+      const r = await fetch(`results.json?_=${Date.now()}`);
+      allResults = await r.json();
+      // Sort newest first
+      allResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    } catch(e) {
+      console.error("Failed to load results.json", e);
+    }
+  }
+
+  // ── Alert Cards ────────────────────────────────────────────────────────────
+  const DISNEY_HOTELS = new Set([
+    "Contemporary","Yacht Club","Beach Club","Polynesian",
+    "Grand Floridian","Wilderness Lodge","Animal Kingdom Lodge",
+    "Caribbean Beach","Pop Century","Art of Animation",
+    "Old Key West","Saratoga Springs","BoardWalk"
+  ]);
+
+  function hotelType(name) {
+    return DISNEY_HOTELS.has(name) ? "disney" : "marriott";
+  }
+
+  function getLastResultForAlert(alertName) {
+    for (const run of allResults) {
+      const found = run.alerts?.find(a => a.name === alertName);
+      if (found) return { run, alert: found };
+    }
+    return null;
+  }
+
+  function renderAlertCards() {
+    const grid = document.getElementById("alerts-grid");
+    document.getElementById("alert-count").textContent = `${allAlerts.filter(a=>a.active).length} active`;
+
+    if (!allAlerts.length) {
+      grid.innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>No alerts configured in alerts.json</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = allAlerts.filter(a => a.active).map(alert => {
+      const last   = getLastResultForAlert(alert.name);
+      const result = last?.alert;
+      const hasAvail = result?.has_availability;
+      const availHotels = result?.available_hotels || [];
+      const lastTime = last?.run?.timestamp ? fmtTime(last.run.timestamp) : null;
+
+      const hotelTagsHTML = alert.hotels.map(h => {
+        const type = hotelType(h);
+        const isAvail = availHotels.includes(h);
+        return `<span class="hotel-tag ${isAvail ? 'available' : type}">${h}</span>`;
+      }).join("");
+
+      const statusHTML = !result
+        ? `<div class="alert-status unchecked">⏳ Not yet checked</div>`
+        : hasAvail
+          ? `<div class="alert-status available">✅ Availability found! ${availHotels.join(", ")}</div>`
+          : `<div class="alert-status none">— No availability found</div>`;
+
+      return `
+        <div class="alert-card ${hasAvail ? 'has-availability' : result ? '' : 'no-check'}">
+          <div class="alert-name">${alert.name}</div>
+          <div class="alert-dates">${alert.check_in} → ${alert.check_out}</div>
+          <div class="hotel-tags">${hotelTagsHTML}</div>
+          ${statusHTML}
+          ${lastTime ? `<div class="alert-last-check">Last checked ${lastTime}</div>` : ""}
+        </div>`;
+    }).join("");
+  }
+
+  // ── History Table ──────────────────────────────────────────────────────────
+  function filterHistory(filter, btn) {
+    activeFilter = filter;
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const tbody = document.getElementById("history-tbody");
+
+    // Flatten: one row per alert-run combo
+    let rows = [];
+    for (const run of allResults) {
+      for (const alertResult of (run.alerts || [])) {
+        rows.push({ timestamp: run.timestamp, is_test: run.is_test, ...alertResult });
+      }
+    }
+
+    // Filter
+    if (activeFilter === "found") rows = rows.filter(r => r.has_availability);
+    if (activeFilter === "test")  rows = rows.filter(r => r.is_test);
+
+    document.getElementById("history-count").textContent = `${rows.length} entries`;
+
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="4">
+        <div class="empty-state">
+          <div class="icon">📭</div>
+          <p>${allResults.length === 0 ? "No checks have run yet. Click "Run Check Now" to start." : "No entries match this filter."}</p>
+        </div>
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(row => {
+      const availBadge = row.is_test
+        ? `<span class="badge test">🧪 Test</span>`
+        : row.has_availability
+          ? `<span class="badge found">✅ Found</span>`
+          : `<span class="badge none">— None</span>`;
+
+      const availHotels = (row.available_hotels || []).length
+        ? `<div class="available-hotels">${row.available_hotels.map(h => `<span class="avail-tag">${h}</span>`).join("")}</div>`
+        : "";
+
+      const hotelsChecked = (row.hotels_checked || []).join(", ");
+
+      return `
+        <tr>
+          <td class="td-time">${fmtTime(row.timestamp)}</td>
+          <td class="td-alert">${row.name}<br><small style="color:var(--text-dim);font-family:'DM Mono',monospace;font-size:10px;">${row.check_in} → ${row.check_out}</small></td>
+          <td class="td-hotels">${hotelsChecked}</td>
+          <td>${availBadge}${availHotels}</td>
+        </tr>`;
+    }).join("");
+  }
+
+  // ── Status Bar ─────────────────────────────────────────────────────────────
+  function updateStatusBar() {
+    const pill   = document.getElementById("status-pill");
+    const text   = document.getElementById("status-text");
+    const detail = document.getElementById("status-detail");
+    const lastEl = document.getElementById("last-checked-time");
+
+    if (!allResults.length) {
+      pill.className = "status-pill warn";
+      text.textContent = "Awaiting first run";
+      detail.textContent = "No checks have been recorded yet.";
+      lastEl.textContent = "Never";
+      return;
+    }
+
+    const latest = allResults[0];
+    const anyFound = allResults.some(r => r.alerts?.some(a => a.has_availability));
+
+    pill.className = anyFound ? "status-pill ok" : "status-pill idle";
+    text.textContent = anyFound ? "Availability found!" : "Monitoring";
+    detail.textContent = `${allResults.length} total runs · Next auto-check runs at the top of the hour`;
+    lastEl.textContent = fmtTime(latest.timestamp);
+  }
+
+  // ── On-Demand Run ──────────────────────────────────────────────────────────
+  async function triggerRun(isTest) {
+    if (!GITHUB_OWNER || GITHUB_OWNER === "YOUR_GITHUB_USERNAME") {
+      showToast("⚙️ Set GITHUB_OWNER and GITHUB_REPO in index.html to enable on-demand runs.", "error");
+      return;
+    }
+
+    const btn  = document.getElementById("run-btn");
+    const icon = document.getElementById("run-icon");
+    btn.disabled = true;
+    icon.innerHTML = `<span class="spinner"></span>`;
+
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/check.yml/dispatches`,
+        {
+          method: "POST",
+          headers: {
+            "Accept":        "application/vnd.github+json",
+            "Content-Type":  "application/json",
+            // For on-demand triggering from the browser, a PAT with repo scope is needed.
+            // Add it here or use a proxy. See README for options.
+            "Authorization": `Bearer ${GITHUB_TOKEN}`,
+          },
+          body: JSON.stringify({ ref: "main", inputs: { test_run: isTest ? "true" : "false" } }),
+        }
+      );
+
+      if (res.status === 204) {
+        showToast(isTest
+          ? "✉ Test run triggered! Check your inbox in ~60 seconds."
+          : "▶ Check triggered! Results will appear once the run completes (~60s).",
+          "success"
+        );
+        // Reload results after 75 seconds
+        setTimeout(async () => {
+          await loadResults();
+          renderAlertCards();
+          renderHistory();
+          updateStatusBar();
+          showToast("🔄 Dashboard refreshed.", "success");
+        }, 75000);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast(`❌ Trigger failed (${res.status}): ${err.message || "Check your GitHub token."}`, "error");
+      }
+    } catch(e) {
+      showToast(`❌ Network error: ${e.message}`, "error");
+    } finally {
+      btn.disabled = false;
+      icon.innerHTML = "▶";
+    }
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function fmtTime(iso) {
+    try {
+      return new Date(iso).toLocaleString("en-US", {
+        month:   "short", day:    "numeric",
+        hour:    "numeric", minute: "2-digit",
+        hour12:  true, timeZoneName: "short",
+      });
+    } catch { return iso; }
+  }
+
+  function showToast(msg, type = "") {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = `show ${type}`;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = ""; }, 5000);
+  }
+
+  // ── Auto-refresh every 5 minutes ───────────────────────────────────────────
+  setInterval(async () => {
+    await loadResults();
+    renderAlertCards();
+    renderHistory();
+    updateStatusBar();
+  }, 5 * 60 * 1000);
+
+  init();
+</script>
+</body>
+</html>
