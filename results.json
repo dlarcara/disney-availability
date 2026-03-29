@@ -366,5 +366,97 @@
         "has_availability": false
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-29T00:42:21.706165+00:00",
+    "is_test": false,
+    "alerts": [
+      {
+        "name": "Magic Kingdom in Sep",
+        "check_in": "2026-10-08",
+        "check_out": "2026-10-12",
+        "hotels_checked": [
+          "Contemporary"
+        ],
+        "hotel_results": {
+          "Contemporary": {
+            "available": false,
+            "room_count": 0,
+            "error": "Page.goto() got an unexpected keyword argument 'extra_http_headers'"
+          }
+        },
+        "available_hotels": [],
+        "has_availability": false
+      },
+      {
+        "name": "Magic Kingdom in Jan",
+        "check_in": "2027-01-07",
+        "check_out": "2027-01-11",
+        "hotels_checked": [
+          "Contemporary"
+        ],
+        "hotel_results": {
+          "Contemporary": {
+            "available": false,
+            "room_count": 0,
+            "error": "Page.goto() got an unexpected keyword argument 'extra_http_headers'"
+          }
+        },
+        "available_hotels": [],
+        "has_availability": false
+      },
+      {
+        "name": "Swan & Dolphin for Steph/Jeff",
+        "check_in": "2027-01-09",
+        "check_out": "2027-01-12",
+        "hotels_checked": [
+          "Swan",
+          "Dolphin",
+          "Swan Reserve"
+        ],
+        "hotel_results": {
+          "Swan": {
+            "available": false,
+            "room_count": 0,
+            "error": "Marriott checker not yet implemented"
+          },
+          "Dolphin": {
+            "available": false,
+            "room_count": 0,
+            "error": "Marriott checker not yet implemented"
+          },
+          "Swan Reserve": {
+            "available": false,
+            "room_count": 0,
+            "error": "Marriott checker not yet implemented"
+          }
+        },
+        "available_hotels": [],
+        "has_availability": false
+      },
+      {
+        "name": "Yacth & Beach for Steph/Jeff",
+        "check_in": "2027-01-09",
+        "check_out": "2027-01-12",
+        "hotels_checked": [
+          "Yacht Club",
+          "Beach Club"
+        ],
+        "hotel_results": {
+          "Yacht Club": {
+            "available": false,
+            "room_count": 0,
+            "error": "Page.goto() got an unexpected keyword argument 'extra_http_headers'"
+          },
+          "Beach Club": {
+            "available": false,
+            "room_count": 0,
+            "error": "Page.goto() got an unexpected keyword argument 'extra_http_headers'"
+          }
+        },
+        "available_hotels": [],
+        "has_availability": false
+      }
+    ]
   }
 ]
