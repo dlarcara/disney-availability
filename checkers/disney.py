@@ -70,8 +70,23 @@ async def check_resort(resort_name, check_in, check_out, adults=2):
                     "Chrome/120.0.0.0 Safari/537.36"
                 ),
                 viewport={"width": 1280, "height": 800},
+                extra_http_headers={
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Sec-Fetch-Site": "none",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-User": "?1",
+                    "Sec-Fetch-Dest": "document",
+                },
+                http_credentials=None,
+                ignore_https_errors=True,
             )
             page = await context.new_page()
+            # Disable HTTP/2 to avoid protocol errors
+            async def handle_route(route):
+                await route.continue_()
+            await context.route("**/*", handle_route)
 
             # Intercept the availability API response
             async def handle_response(response):
@@ -87,7 +102,7 @@ async def check_resort(resort_name, check_in, check_out, adults=2):
 
             # Navigate and wait for network to settle
             try:
-                await page.goto(url, wait_until="networkidle", timeout=60000)
+                await page.goto(url, wait_until="networkidle", timeout=60000, extra_http_headers={"Upgrade-Insecure-Requests": "1"})
             except PlaywrightTimeout:
                 print(f"       ⚠️  Page load timed out for {resort_name}, checking captured data...")
 
