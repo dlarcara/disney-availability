@@ -182,5 +182,97 @@
         "has_availability": true
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-29T00:07:38.084398+00:00",
+    "is_test": false,
+    "alerts": [
+      {
+        "name": "Magic Kingdom in Sep",
+        "check_in": "2026-10-08",
+        "check_out": "2026-10-12",
+        "hotels_checked": [
+          "Contemporary"
+        ],
+        "hotel_results": {
+          "Contemporary": {
+            "available": true,
+            "error": null
+          }
+        },
+        "available_hotels": [
+          "Contemporary"
+        ],
+        "has_availability": true
+      },
+      {
+        "name": "Magic Kingdom in Jan",
+        "check_in": "2027-01-07",
+        "check_out": "2027-01-11",
+        "hotels_checked": [
+          "Contemporary"
+        ],
+        "hotel_results": {
+          "Contemporary": {
+            "available": true,
+            "error": null
+          }
+        },
+        "available_hotels": [
+          "Contemporary"
+        ],
+        "has_availability": true
+      },
+      {
+        "name": "Swan & Dolphin for Steph/Jeff",
+        "check_in": "2027-01-09",
+        "check_out": "2027-01-12",
+        "hotels_checked": [
+          "Swan",
+          "Dolphin",
+          "Swan Reserve"
+        ],
+        "hotel_results": {
+          "Swan": {
+            "available": false,
+            "error": "403 Client Error: Forbidden for url: https://www.marriott.com/search/availabilityCalendar.mi?propertyCode=MC069&arrivalDate=2027-01-09&departureDate=2027-01-12&numberOfRooms=1&numberOfAdults=2"
+          },
+          "Dolphin": {
+            "available": false,
+            "error": "403 Client Error: Forbidden for url: https://www.marriott.com/search/availabilityCalendar.mi?propertyCode=MC070&arrivalDate=2027-01-09&departureDate=2027-01-12&numberOfRooms=1&numberOfAdults=2"
+          },
+          "Swan Reserve": {
+            "available": false,
+            "error": "403 Client Error: Forbidden for url: https://www.marriott.com/search/availabilityCalendar.mi?propertyCode=MC903&arrivalDate=2027-01-09&departureDate=2027-01-12&numberOfRooms=1&numberOfAdults=2"
+          }
+        },
+        "available_hotels": [],
+        "has_availability": false
+      },
+      {
+        "name": "Yacth & Beach for Steph/Jeff",
+        "check_in": "2027-01-09",
+        "check_out": "2027-01-12",
+        "hotels_checked": [
+          "Yacht Club",
+          "Beach Club"
+        ],
+        "hotel_results": {
+          "Yacht Club": {
+            "available": true,
+            "error": null
+          },
+          "Beach Club": {
+            "available": true,
+            "error": null
+          }
+        },
+        "available_hotels": [
+          "Yacht Club",
+          "Beach Club"
+        ],
+        "has_availability": true
+      }
+    ]
   }
 ]
