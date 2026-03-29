@@ -1,0 +1,50 @@
+name: Disney Availability Checker
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      test_run:
+        description: "Send a test email to verify integration (true/false)"
+        required: false
+        default: "false"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install requests playwright
+
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
+
+      - name: Run availability check
+        env:
+          GMAIL_USER:     ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
+          ALERT_EMAILS:   ${{ secrets.ALERT_EMAILS }}
+          TEST_RUN:       ${{ github.event.inputs.test_run || 'false' }}
+        run: python check_availability.py
+
+      - name: Commit updated results.json
+        run: |
+          git config user.name  "Disney Checker Bot"
+          git config user.email "actions@github.com"
+          git add results.json
+          git diff --staged --quiet || git commit -m "chore: update availability results [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+          git push
