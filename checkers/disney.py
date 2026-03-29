@@ -102,7 +102,7 @@ async def check_resort(resort_name, check_in, check_out, adults=2):
 
             # Navigate and wait for network to settle
             try:
-                await page.goto(url, wait_until="networkidle", timeout=60000, extra_http_headers={"Upgrade-Insecure-Requests": "1"})
+                await page.goto(url, wait_until="networkidle", timeout=60000)
             except PlaywrightTimeout:
                 print(f"       ⚠️  Page load timed out for {resort_name}, checking captured data...")
 
